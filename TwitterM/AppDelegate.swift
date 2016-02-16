@@ -14,9 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     var storyboard = UIStoryboard(name: "Main", bundle: nil)
+    let tabBarController = UITabBarController()
+    
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        UIApplication.sharedApplication().statusBarStyle = .LightContent
+        
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)
 
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "userDidLogout", name: userDidLogoutNotification, object: nil)
         
@@ -25,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("Current user detected: \(User.currentUser?.name)")
            let vc =  storyboard.instantiateViewControllerWithIdentifier("TweetsViewController") as UIViewController
             window?.rootViewController = vc
+            window?.makeKeyAndVisible()
         }
         
         return true
@@ -33,8 +40,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func userDidLogout() {
+        print("user logout attempt and viewcontroller switch")
         let vc =  storyboard.instantiateInitialViewController()! as UIViewController
         window?.rootViewController = vc
+    }
+    
+    func setupTabBars() {
+        // Set up the search View Controller
+        let TwitterNavigationController = storyboard.instantiateViewControllerWithIdentifier("TwitterNavigationController") as! UINavigationController
+        let tweetsViewController = TwitterNavigationController.topViewController as! TweetsViewController
+        TwitterNavigationController.tabBarItem.title = "News Feed"
+        TwitterNavigationController.tabBarItem.image = UIImage(named: "main")
+        
+        
+        
+    
+        
+        /* Create an Image View to replace the Title View */
+        let imageView: UIImageView = UIImageView(frame: CGRectMake(0.0, 0.0, 40.0, 40.0))
+        
+        imageView.contentMode = UIViewContentMode.ScaleAspectFit
+        
+        /* Load an image. Be careful, this image will be cached */
+        let image: UIImage = UIImage(named: "Icon50")!
+        
+        /* Set the image of the Image View */
+        imageView.image = image
+        
+        /* Set the Title View */
+        TwitterNavigationController.navigationBar.topItem?.titleView = imageView
+        
+        // Set up the search View Controller
+        let meViewController = storyboard.instantiateViewControllerWithIdentifier("ProfileViewController")
+        meViewController.tabBarItem.title = "Profile"
+        meViewController.tabBarItem.image = UIImage(named: "profile")
+        
+        // Set up the Tab Bar Controller to have two tabs
+        tabBarController.viewControllers = [TwitterNavigationController, meViewController]
+//        UITabBar.appearance().tintColor = UIColor
+            UITabBar.appearance().barTintColor = UIColor.blackColor()
+        
+        // Make the Tab Bar Controller the root view controller
+        window?.rootViewController = tabBarController
+        window?.makeKeyAndVisible()
+        
     }
     
     func applicationWillResignActive(application: UIApplication) {
